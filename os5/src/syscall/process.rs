@@ -159,14 +159,8 @@ pub fn sys_mmap(_start: usize, _len: usize, _port: usize) -> isize {
     if _port & !0x7 != 0 || _port & 0x7 == 0 || _len <= 0 || _start % PAGE_SIZE  !=0{
         return -1;
     }
-    let l : usize;
-    if _len % PAGE_SIZE != 0{
-        l = (_len / PAGE_SIZE + 1) * PAGE_SIZE;
-    }else{
-        l = _len;
-    }
 
-    let _end = _start + l - 1;
+    let _end = _start + _len;
 
     let start_vpn = VirtAddr(_start).floor();
     let end_vpn= VirtAddr(_end).ceil();
@@ -190,14 +184,7 @@ pub fn sys_munmap(_start: usize, _len: usize) -> isize {
     if _len <= 0 || _start % PAGE_SIZE !=0{
         return -1;
     }
-    let mut l : usize;
-    if _len % PAGE_SIZE != 0{
-        l = (_len / PAGE_SIZE + 1) * PAGE_SIZE;
-    }else{
-        l = _len;
-    }
-
-    let _end = _start + l - 1;
+    let _end = _start + _len;
 
     let start_vpn: VirtPageNum = VirtAddr(_start).floor();
     let end_vpn: VirtPageNum = VirtAddr(_end).ceil();

@@ -98,7 +98,7 @@ impl MemorySet {
         }
         if flag{
             self.areas.remove(index);
-            for i in _start.0..=_end.0{
+            for i in _start.0.._end.0{
                 self.page_table.unmap(VirtPageNum(i));
             }
             return 0;

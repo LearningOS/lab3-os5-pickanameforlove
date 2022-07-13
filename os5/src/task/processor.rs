@@ -113,7 +113,7 @@ pub fn schedule(switched_task_cx_ptr: *mut TaskContext) {
 
 pub fn translate(vpn: VirtPageNum)-> PhysPageNum{
     let curPCB = current_task().unwrap();
-    let mem_set = &(curPCB.inner_exclusive_access().memory_set);
+    let mem_set = &curPCB.inner_exclusive_access().memory_set;
     let ppn = mem_set.translate(vpn).unwrap().ppn();
     return ppn;
 
