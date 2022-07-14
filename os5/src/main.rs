@@ -3,6 +3,8 @@
 #![feature(panic_info_message)]
 #![feature(alloc_error_handler)]
 
+use crate::config::BIG_STRIDE;
+
 #[macro_use]
 extern crate bitflags;
 #[macro_use]
@@ -40,6 +42,7 @@ fn clear_bss() {
 
 #[no_mangle]
 pub fn rust_main() -> ! {
+    println!("{}",BIG_STRIDE);
     clear_bss();
     logging::init();
     println!("[kernel] Hello, world!");
