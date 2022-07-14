@@ -50,8 +50,8 @@ pub struct TaskControlBlockInner {
     pub exit_code: i32,
     pub task_begin_time: usize,
     pub syscall_times: [u32; MAX_SYSCALL_NUM],
-    pub priority: isize,
-    pub stride: usize,
+    pub priority: u8,
+    pub stride: u8,
 }
 
 /// Simple access to its internal fields

@@ -150,7 +150,7 @@ pub fn sys_set_priority(_prio: isize) -> isize {
     if _prio < 2 {
         return -1;
     }
-    set_priority(_prio);
+    set_priority(_prio as u8);
     _prio
 }
 

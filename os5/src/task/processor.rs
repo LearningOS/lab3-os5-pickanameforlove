@@ -10,7 +10,7 @@
 use super::__switch;
 use super::{fetch_task, TaskStatus};
 use super::{TaskContext, TaskControlBlock};
-use crate::config::CLOCK_FREQ;
+use crate::config::{CLOCK_FREQ, BIG_STRIDE};
 use crate::mm::{VirtPageNum, PhysPageNum, MapPermission, VirtAddr};
 use crate::sync::UPSafeCell;
 use crate::syscall::TaskInfo;
@@ -18,7 +18,6 @@ use crate::timer::get_time;
 use crate::trap::TrapContext;
 use alloc::sync::Arc;
 use lazy_static::*;
-use crate::task::return_least_stride_contex;
 
 
 /// Processor management structure
@@ -79,6 +78,11 @@ pub fn run_tasks() {
             let mut task_inner = task.inner_exclusive_access();
             let next_task_cx_ptr = &task_inner.task_cx as *const TaskContext;
             task_inner.task_status = TaskStatus::Running;
+
+            let p = task_inner.priority;
+            let add_res = task_inner.stride.wrapping_add(BIG_STRIDE / p);
+            task_inner.stride = add_res;
+
             drop(task_inner);
             // release coming task TCB manually
             processor.current = Some(task);
@@ -154,7 +158,7 @@ pub fn set_task_info(taskinfo: *mut TaskInfo) {
     }
 }
 
-pub fn set_priority(_prio: isize) {
+pub fn set_priority(_prio: u8) {
     let curPCB = current_task().unwrap();
     let mut inner = curPCB.inner_exclusive_access();
     inner.priority = _prio;
