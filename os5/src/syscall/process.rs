@@ -209,10 +209,10 @@ pub fn sys_spawn(_path: *const u8) -> isize {
         let new_task = current_task.spawn(data);
         let new_pid = new_task.pid.0;
         // modify trap context of new_task, because it returns immediately after switching
-//        let trap_cx = new_task.inner_exclusive_access().get_trap_cx();
+        let trap_cx = new_task.inner_exclusive_access().get_trap_cx();
         // we do not have to move to next instruction since we have done it before
         // for child process, fork returns 0
-//        trap_cx.x[10] = 0;
+        trap_cx.x[10] = 0;
         // add new task to scheduler
         add_task(new_task);
         new_pid as isize

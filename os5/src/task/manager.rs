@@ -10,6 +10,8 @@ use alloc::collections::VecDeque;
 use alloc::sync::Arc;
 use lazy_static::*;
 use crate::config::*;
+use crate::task::TaskContext;
+use super::TaskStatus;
 
 pub struct TaskManager {
     ready_queue: VecDeque<Arc<TaskControlBlock>>,
@@ -29,20 +31,41 @@ impl TaskManager {
     }
     /// Take a process out of the ready queue
     pub fn fetch(&mut self) -> Option<Arc<TaskControlBlock>> {
-//        let l = self.ready_queue.len();
-//        let mut index = 0;
-//        let mut min_stride = self.ready_queue[index].inner_exclusive_access().stride;;
-//        for i in 1..l{
-//            let t = self.ready_queue[i].inner_exclusive_access().stride;
-//            if t <= min_stride{
-//                min_stride = t;
-//                index = i;
-//            }
-//        }
-//        let p = self.ready_queue[index].inner_exclusive_access().priority as usize;
-//        self.ready_queue[index].inner_exclusive_access().stride += BIG_STRIDE / p;
-//        self.ready_queue.remove(index)
-        self.ready_queue.pop_front()
+        let l = self.ready_queue.len();
+        let mut index = 0;
+        let mut min_stride = self.ready_queue[index].inner_exclusive_access().stride;
+        for i in 1..l{
+            let t = self.ready_queue[i].inner_exclusive_access().stride;
+            let difference = (t - min_stride) as isize;
+            // println!("difference {}",difference);
+            if difference <= 0 {
+                min_stride = t;
+                index = i;
+            }
+            // if t < min_stride {
+            //     min_stride = t;
+            //     index = i;
+            // }
+        }
+        let p = self.ready_queue[index].inner_exclusive_access().priority as usize;
+        self.ready_queue[index].inner_exclusive_access().stride += BIG_STRIDE / p;
+        self.ready_queue.remove(index)
+//        self.ready_queue.pop_front()
+    }
+    pub fn return_least_stride_context(&self) -> TaskContext {
+        let l = self.ready_queue.len();
+        let mut index = 0;
+        let mut min_stride = self.ready_queue[index].inner_exclusive_access().stride;
+        for i in 1..l{
+            let t = self.ready_queue[i].inner_exclusive_access().stride;
+            if t <= min_stride{
+                min_stride = t;
+                index = i;
+            }
+        }
+        let p = self.ready_queue[index].inner_exclusive_access().priority as usize;
+        self.ready_queue[index].inner_exclusive_access().stride += BIG_STRIDE / p;
+        self.ready_queue[index].inner_exclusive_access().task_cx
     }
 }
 
@@ -58,4 +81,7 @@ pub fn add_task(task: Arc<TaskControlBlock>) {
 
 pub fn fetch_task() -> Option<Arc<TaskControlBlock>> {
     TASK_MANAGER.exclusive_access().fetch()
+}
+pub fn return_least_stride_contex()-> TaskContext {
+    TASK_MANAGER.exclusive_access().return_least_stride_context()
 }

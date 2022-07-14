@@ -18,6 +18,7 @@ use crate::timer::get_time;
 use crate::trap::TrapContext;
 use alloc::sync::Arc;
 use lazy_static::*;
+use crate::task::return_least_stride_contex;
 
 
 /// Processor management structure
@@ -36,7 +37,21 @@ impl Processor {
         }
     }
     fn get_idle_task_cx_ptr(&mut self) -> *mut TaskContext {
+//        let l = self.ready_queue.len();
+//        let mut index = 0;
+//        let mut min_stride = self.ready_queue[index].inner_exclusive_access().stride;;
+//        for i in 1..l{
+//            let t = self.ready_queue[i].inner_exclusive_access().stride;
+//            if t <= min_stride{
+//                min_stride = t;
+//                index = i;
+//            }
+//        }
+//        let p = self.ready_queue[index].inner_exclusive_access().priority as usize;
+//        self.ready_queue[index].inner_exclusive_access().stride += BIG_STRIDE / p;
+//        self.ready_queue.remove(index)
         &mut self.idle_task_cx as *mut _
+//        &mut return_least_stride_contex()
     }
     pub fn take_current(&mut self) -> Option<Arc<TaskControlBlock>> {
         self.current.take()
@@ -154,7 +169,7 @@ pub fn contains_key(vpn: &VirtPageNum)-> bool {
 pub fn mmap(start_va: VirtAddr, end_va: VirtAddr, permission: MapPermission) {
     let curPCB = current_task().unwrap();
     let mut inner = curPCB.inner_exclusive_access();
-    inner.memory_set.insert_framed_area(start_va, end_va, permission)
+    inner.memory_set.insert_framed_area(start_va, end_va, permission);
 }
 
 pub fn m_numap(start_vpn: VirtPageNum, end_vpn: VirtPageNum)-> isize {
