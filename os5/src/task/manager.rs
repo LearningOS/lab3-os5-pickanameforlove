@@ -38,7 +38,7 @@ impl TaskManager {
         for i in 1..l{
             let inner = self.ready_queue[i].inner_exclusive_access();
             let t = inner.stride;
-            let difference = (t-min_stride) as i8;
+            let difference = (t-min_stride) as isize;
             // println!("difference {}",difference);
             if difference <= 0 {
                 min_stride = t;

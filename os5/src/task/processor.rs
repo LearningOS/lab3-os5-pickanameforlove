@@ -158,7 +158,7 @@ pub fn set_task_info(taskinfo: *mut TaskInfo) {
     }
 }
 
-pub fn set_priority(_prio: u8) {
+pub fn set_priority(_prio: usize) {
     let curPCB = current_task().unwrap();
     let mut inner = curPCB.inner_exclusive_access();
     inner.priority = _prio;
